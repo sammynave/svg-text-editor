@@ -1,0 +1,9 @@
+<link href="https://fonts.googleapis.com/css?family=Rammetto+One" rel="stylesheet">
+
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" viewBox="0 0 200 15" xml:space="preserve">
+  <g id="TextGroup" transform="translate(0,0)" style="" width="200" height="10" fill="none">
+    <text id="Text1" text-anchor="start" transform="matrix(1 0 0 1 10 10)" style="" fill="#EF5D66" font-family="Rammetto One" font-size="8px">
+      id of #Text1
+    </text>
+  </g>
+</svg>
