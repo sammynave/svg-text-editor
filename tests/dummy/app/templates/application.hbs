@@ -1,5 +1,4 @@
-{{ember-islands}}
-{{#svg-editor src="/dummy.svg" targetIds=targetIds as |e|}}
+{{!--#svg-editor src="/dummy.svg" targetIds=targetIds as |e|}}
   {{#if e.loading}}
     wait
   {{else}}
@@ -9,4 +8,6 @@
       content=e.content
       update=(action e.update)}}
   {{/if}}
-{{/svg-editor}}
+{{/svg-editor --}}
+
+{{component-factory src="/dummy.svg" targetIds=targetIds }}
