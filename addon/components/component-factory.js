@@ -1,21 +1,23 @@
 import Component from '@ember/component';
 import fetch from 'fetch';
 import { task } from 'ember-concurrency';
-import { get, setProperties } from '@ember/object';
+import { set, get, setProperties } from '@ember/object';
 import { getOwner } from '@ember/application';
 
 function remove(array, element) {
   return array.filter(e => e !== element);
 }
 
+const PAD = 5;
+
 export default Component.extend({
   tagName: '',
   loadSvg: task(function* () {
     let svgText = yield get(this, 'fetchSvg').perform(get(this, 'src'));
-    let div = document.createElement('div');
-    div.innerHTML = svgText;
-    document.body.appendChild(div);
-    this.appendToSvgEl()
+    let svgContainer = document.createElement('div');
+    svgContainer.innerHTML = svgText;
+    document.body.appendChild(svgContainer);
+    this.appendToSvgEl(svgContainer.querySelector('svg'))
   }).on('init'),
 
   fetchSvg: task(function* (src) {
@@ -23,7 +25,12 @@ export default Component.extend({
     return yield response.text();
   }),
 
-  appendToSvgEl() {
+  appendToSvgEl(svg) {
+    let SelectBoxFactory = getOwner(this).factoryFor('component:select-box');
+    let selectBoxComponent = SelectBoxFactory.create();
+    selectBoxComponent.appendTo(svg);
+    set(this, 'selectBoxComponent', selectBoxComponent);
+
     let TextElFactory = getOwner(this).factoryFor('component:text-el');
     get(this, 'targetIds').forEach((targetId) => {
       let oldEl = document.getElementById(targetId);
@@ -32,7 +39,8 @@ export default Component.extend({
       let opts = {
         text: oldEl.textContent,
         attributeBindings: attrNames,
-        elementId: targetId
+        elementId: targetId,
+        select: this.select.bind(this)
       };
 
       attrNames.forEach((k) => {
@@ -44,6 +52,24 @@ export default Component.extend({
       let parentId = oldEl.parentElement.id;
       oldEl.remove();
       textElComponent.appendTo(`#${parentId}`);
+      set(this, targetId, textElComponent);
+    });
+  },
+
+  showSelectBox: false,
+
+  select(id) {
+    set(this, 'currentSelection', id);
+    let sbx = get(this, 'selectBoxComponent');
+    let textComponent = get(this, id);
+    let { element, transform } = textComponent;
+    let { height, width, x, y } = element.getBBox();
+    setProperties(sbx, {
+      height: height + (PAD / 2),
+      width: width + PAD,
+      x: x - (PAD / 2),
+      y: y - (PAD / 4),
+      transform
     });
   }
 });
