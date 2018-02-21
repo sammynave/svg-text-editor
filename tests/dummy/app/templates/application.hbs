@@ -1,13 +1,2 @@
-{{!--#svg-editor src="/dummy.svg" targetIds=targetIds as |e|}}
-  {{#if e.loading}}
-    wait
-  {{else}}
-    {{e.svg}}
-    {{text-tracker
-      styles=e.imposterStyles
-      content=e.content
-      update=(action e.update)}}
-  {{/if}}
-{{/svg-editor --}}
-
-{{component-factory src="/dummy.svg" targetIds=targetIds}}
+<div id="svg-container" class="svg-container"></div>
+{{component-factory src="/dummy.svg" targetIds=targetIds container="svg-container"}}

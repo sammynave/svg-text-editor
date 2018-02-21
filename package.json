@@ -19,6 +19,7 @@
     "test": "ember try:each"
   },
   "dependencies": {
+    "d3plus": "^1.9.8",
     "ember-cli-babel": "^6.6.0",
     "ember-cli-htmlbars": "^2.0.1",
     "ember-concurrency": "^0.8.14",

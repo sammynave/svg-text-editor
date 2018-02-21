@@ -5,6 +5,7 @@ import { get } from '@ember/object';
 export default Component.extend({
   layout,
   tagName: 'text',
+
   click() {
     this.select(get(this, 'elementId'));
   }

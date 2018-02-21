@@ -1,8 +1,10 @@
 import Component from '@ember/component';
 import fetch from 'fetch';
 import { task } from 'ember-concurrency';
-import { set, get, setProperties } from '@ember/object';
+import { set, get, setProperties, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
+import layout from '../templates/components/component-factory';
+import { later } from '@ember/runloop';
 
 function remove(array, element) {
   return array.filter(e => e !== element);
@@ -12,10 +14,12 @@ const PAD = 5;
 
 export default Component.extend({
   tagName: '',
+  layout,
   loadSvg: task(function* () {
     let svgText = yield get(this, 'fetchSvg').perform(get(this, 'src'));
-    let svgContainer = document.createElement('div');
+    let svgContainer = document.getElementById(get(this, 'container'));
     svgContainer.innerHTML = svgText;
+    svgContainer.addEventListener('click', this.actions.unselect.bind(this));
     document.body.appendChild(svgContainer);
     this.appendToSvgEl(svgContainer.querySelector('svg'))
   }).on('init'),
@@ -25,22 +29,23 @@ export default Component.extend({
     return yield response.text();
   }),
 
-  appendToSvgEl(svg) {
+  createSelectBox(svg) {
     let SelectBoxFactory = getOwner(this).factoryFor('component:select-box');
     let selectBoxComponent = SelectBoxFactory.create();
     selectBoxComponent.appendTo(svg);
     set(this, 'selectBoxComponent', selectBoxComponent);
+  },
 
+  createTextEls() {
     let TextElFactory = getOwner(this).factoryFor('component:text-el');
     get(this, 'targetIds').forEach((targetId) => {
       let oldEl = document.getElementById(targetId);
       let attrNames = remove(oldEl.getAttributeNames(), 'id');
-
       let opts = {
         text: oldEl.textContent,
         attributeBindings: attrNames,
         elementId: targetId,
-        select: this.select.bind(this)
+        select: this.actions.select.bind(this)
       };
 
       attrNames.forEach((k) => {
@@ -56,12 +61,40 @@ export default Component.extend({
     });
   },
 
-  showSelectBox: false,
+  appendToSvgEl(svg) {
+    this.createSelectBox(svg);
+    this.createTextEls();
+  },
 
-  select(id) {
-    set(this, 'currentSelection', id);
+  actions: {
+    unselect() {
+      set(this, 'currentSelection', null);
+      let sbx = get(this, 'selectBoxComponent');
+      setProperties(sbx, {
+        height: 0,
+        width: 0
+      });
+    },
+    updateText(e) {
+      let { target, inputType } = e;
+      let { value } = target;
+      if (e.inputType === 'insertLineBreak') {
+        console.log('tspan');
+      } else if (e.inputType === 'deleteContentBackward') {
+        console.log('delete');
+      }
+      set(this, `${get(this, 'currentSelection')}.text`, value);
+      let textComponent = get(this, get(this, 'currentSelection'));
+      later(() => this.updateSelectBoxProps(textComponent), 0);
+    },
+    select(id) {
+      set(this, 'currentSelection', id);
+      this.updateSelectBoxProps(get(this, id));
+    }
+  },
+
+  updateSelectBoxProps(textComponent) {
     let sbx = get(this, 'selectBoxComponent');
-    let textComponent = get(this, id);
     let { element, transform } = textComponent;
     let { height, width, x, y } = element.getBBox();
     setProperties(sbx, {
@@ -71,5 +104,9 @@ export default Component.extend({
       y: y - (PAD / 4),
       transform
     });
-  }
+  },
+
+  selectedText: computed('currentSelection', function() {
+    return get(this, `${get(this, 'currentSelection')}.text`);
+  })
 });
