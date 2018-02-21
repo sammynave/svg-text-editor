@@ -25,8 +25,8 @@ export default Component.extend({
 
   localClassNames: 'select-box',
 
-  click() {
-    this.focusTextArea();
+  click(e) {
+    this.focusTextArea(e);
     return false;
   },
 
