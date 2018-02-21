@@ -5,6 +5,7 @@ import { set, get, setProperties, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import layout from '../templates/components/component-factory';
 import { later } from '@ember/runloop';
+import Wrapper from '../lib/wrapper';
 
 function remove(array, element) {
   return array.filter(e => e !== element);
@@ -41,8 +42,9 @@ export default Component.extend({
     get(this, 'targetIds').forEach((targetId) => {
       let oldEl = document.getElementById(targetId);
       let attrNames = remove(oldEl.getAttributeNames(), 'id');
+      let wrapper = Wrapper.create({ text: oldEl.textContent })
       let opts = {
-        text: oldEl.textContent,
+        wrapper,
         attributeBindings: attrNames,
         elementId: targetId,
         select: this.actions.select.bind(this)
@@ -75,18 +77,16 @@ export default Component.extend({
         width: 0
       });
     },
+
     updateText(e) {
-      let { target, inputType } = e;
+      let { target } = e;
       let { value } = target;
-      if (e.inputType === 'insertLineBreak') {
-        console.log('tspan');
-      } else if (e.inputType === 'deleteContentBackward') {
-        console.log('delete');
-      }
-      set(this, `${get(this, 'currentSelection')}.text`, value);
       let textComponent = get(this, get(this, 'currentSelection'));
+      let wrapper = get(textComponent, 'wrapper');
+      set(wrapper, 'text', value);
       later(() => this.updateSelectBoxProps(textComponent), 0);
     },
+
     select(id) {
       set(this, 'currentSelection', id);
       this.updateSelectBoxProps(get(this, id));
@@ -107,6 +107,6 @@ export default Component.extend({
   },
 
   selectedText: computed('currentSelection', function() {
-    return get(this, `${get(this, 'currentSelection')}.text`);
+    return get(this, `${get(this, 'currentSelection')}.wrapper.text`);
   })
 });
