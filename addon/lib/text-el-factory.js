@@ -37,6 +37,9 @@ const TextElFactory = EmberObject.extend({
       /*
        * copy attributes of original <text> element
        * into new component
+       * we may need to special case the `style` attribute
+       * as it currently throws a warning in console
+       * see https://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes
       */
       attrNames.forEach((k) => {
         opts[k] = oldEl.getAttribute(k);
