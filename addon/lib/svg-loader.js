@@ -12,7 +12,6 @@ const SvgLoader = EmberObject.extend({
     let svgText = yield get(this, 'fetch').perform(src);
     let svgContainer = document.createElement('div');
     svgContainer.innerHTML = svgText;
-    document.body.appendChild(svgContainer);
     return svgContainer;
   })
 });

@@ -1,1 +1,0 @@
-export { default } from 'svg-text-editor/components/component-factory';
