@@ -4,23 +4,24 @@ import { task } from 'ember-concurrency';
 import { set, get, setProperties, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import layout from '../templates/components/component-factory';
-import { later } from '@ember/runloop';
+import { scheduleOnce } from '@ember/runloop';
 import Wrapper from '../lib/wrapper';
 
 function remove(array, element) {
   return array.filter(e => e !== element);
 }
 
-const PAD = 5;
-
 export default Component.extend({
   tagName: '',
   layout,
+  selectBoxComponent: null,
+  currentSelection: null,
+
   loadSvg: task(function* () {
     let svgText = yield get(this, 'fetchSvg').perform(get(this, 'src'));
     let svgContainer = document.getElementById(get(this, 'container'));
     svgContainer.innerHTML = svgText;
-    svgContainer.addEventListener('click', this.actions.unselect.bind(this));
+    document.addEventListener('click', this.actions.unselect.bind(this));
     document.body.appendChild(svgContainer);
     this.appendToSvgEl(svgContainer.querySelector('svg'))
   }).on('init'),
@@ -32,9 +33,7 @@ export default Component.extend({
 
   createSelectBox(svg) {
     let SelectBoxFactory = getOwner(this).factoryFor('component:select-box');
-    let selectBoxComponent = SelectBoxFactory.create();
-    selectBoxComponent.appendTo(svg);
-    set(this, 'selectBoxComponent', selectBoxComponent);
+    set(this, 'selectBoxComponent', SelectBoxFactory.create({ target: svg, focusTextArea: this.actions.focusTextArea.bind(this) }));
   },
 
   createTextEls() {
@@ -71,39 +70,30 @@ export default Component.extend({
   actions: {
     unselect() {
       set(this, 'currentSelection', null);
-      let sbx = get(this, 'selectBoxComponent');
-      setProperties(sbx, {
-        height: 0,
-        width: 0
-      });
+      get(this, 'selectBoxComponent').unselect();
     },
 
     updateText(e) {
-      let { target } = e;
-      let { value } = target;
+      let { target: { value } } = e;
       let textComponent = get(this, get(this, 'currentSelection'));
       let wrapper = get(textComponent, 'wrapper');
       set(wrapper, 'text', value);
-      later(() => this.updateSelectBoxProps(textComponent), 0);
+      scheduleOnce('afterRender', this, () => this.updateSelectBoxProps(textComponent));
     },
 
     select(id) {
       set(this, 'currentSelection', id);
       this.updateSelectBoxProps(get(this, id));
+      scheduleOnce('afterRender', this, this.actions.focusTextArea);
+    },
+
+    focusTextArea() {
+      document.getElementById('textarea').focus();
     }
   },
 
   updateSelectBoxProps(textComponent) {
-    let sbx = get(this, 'selectBoxComponent');
-    let { element, transform } = textComponent;
-    let { height, width, x, y } = element.getBBox();
-    setProperties(sbx, {
-      height: height + (PAD / 2),
-      width: width + PAD,
-      x: x - (PAD / 2),
-      y: y - (PAD / 4),
-      transform
-    });
+    get(this, 'selectBoxComponent').select(textComponent);
   },
 
   selectedText: computed('currentSelection', function() {

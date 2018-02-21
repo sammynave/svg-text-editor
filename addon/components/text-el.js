@@ -10,5 +10,6 @@ export default Component.extend({
 
   click() {
     this.select(get(this, 'elementId'));
+    return false;
   }
 });
