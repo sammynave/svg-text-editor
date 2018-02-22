@@ -28,16 +28,17 @@ export default Component.extend({
       owner: getOwner(this),
       svgContainerEl,
       targetIds: get(this, 'targetIds'),
-      select: this.actions.select.bind(this)
+      select: this.actions.select.bind(this),
+      maxWidth: 100
     });
     setProperties(this, textElFactory.make());
 
     set(this, 'svgContainerEl', svgContainerEl);
   }).on('init'),
 
-  selectedText: computed('currentSelection', function() {
+  selectedText: computed(function() {
     return get(this, `${get(this, 'currentSelection')}.wrapper.text`);
-  }),
+  }).volatile(),
 
   actions: {
     unselect(e) {
@@ -52,8 +53,7 @@ export default Component.extend({
     updateText(e) {
       let { target: { value } } = e;
       let textComponent = get(this, get(this, 'currentSelection'));
-      let wrapper = get(textComponent, 'wrapper');
-      set(wrapper, 'text', value);
+      get(textComponent, 'wrapper').setText(value);
       scheduleOnce('afterRender', this, () => get(this, 'selectBoxComponent').select(textComponent));
     },
 

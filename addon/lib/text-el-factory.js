@@ -1,10 +1,8 @@
 import EmberObject, {
   get,
-  setProperties,
   set,
   getProperties
 } from '@ember/object';
-import Wrapper from './wrapper';
 
 function remove(array, element) {
   return array.filter(e => e !== element);
@@ -17,7 +15,7 @@ const TextElFactory = EmberObject.extend({
     /*
      * temporarily insert into dom so we can
      * use ember's `appendTo` method
-    */
+     */
     document.body.appendChild(svgContainerEl);
 
     let svg = svgContainerEl.querySelector('svg');
@@ -25,13 +23,14 @@ const TextElFactory = EmberObject.extend({
     let TextElFactory = get(this, 'owner').factoryFor('component:text-el');
     get(this, 'targetIds').forEach((targetId) => {
       let oldEl = svg.getElementById(targetId);
+      let parentEl = oldEl.parentElement;
       let attrNames = remove(oldEl.getAttributeNames(), 'id');
-      let wrapper = Wrapper.create({ text: oldEl.textContent });
       let opts = {
-        wrapper,
         attributeBindings: attrNames,
         elementId: targetId,
-        select: get(this, 'select')
+        select: get(this, 'select'),
+        initialText: oldEl.textContent,
+        maxWidth: get(this, 'maxWidth')
       };
 
       /*
@@ -40,24 +39,23 @@ const TextElFactory = EmberObject.extend({
        * we may need to special case the `style` attribute
        * as it currently throws a warning in console
        * see https://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes
-      */
+       */
       attrNames.forEach((k) => {
         opts[k] = oldEl.getAttribute(k);
       });
 
-      let textElComponent = TextElFactory.create();
-      setProperties(textElComponent, opts);
-      let parentId = oldEl.parentElement.id;
-      oldEl.remove();
-      textElComponent.appendTo(`#${parentId}`);
+      parentEl.removeChild(oldEl); // element.remove() doesn't work in IE11
+      let textElComponent = TextElFactory.create(opts);
+      textElComponent.appendTo(`#${parentEl.id}`);
+
       set(this, targetId, textElComponent);
     });
 
     /*
      * ensure svg isn't rendered unless
      * we request it in the template
-    */
-    svgContainerEl.remove();
+     */
+    svgContainerEl.parentElement.removeChild(svgContainerEl); // element.remove() doesn't work in IE11
 
     return getProperties(this, get(this, 'targetIds'));
   }
