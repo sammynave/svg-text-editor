@@ -1,7 +1,7 @@
 {{#svg-editor src="/dummy.svg" targetIds=targetIds elementIdToFocus="textarea" as |se|}}
   {{se.svg}}
   {{#if se.currentSelection}}
-    <textarea id="textarea" autofocus value={{se.text}} oninput={{action se.updateText}}></textarea>
+    <textarea cols=40 rows=10 id="textarea" autofocus value={{se.text}} oninput={{action se.updateText}}></textarea>
   {{/if}}
 {{/svg-editor}}
 

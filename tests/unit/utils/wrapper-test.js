@@ -18,43 +18,32 @@ module('Unit | Utility | wrapper', function(hooks) {
     this.parentEl = document.getElementById('text');
   });
 
-  test("works on empty string", function(assert) {
+  test("measurer - works on empty string", function(assert) {
     let result = measure("", this.parentEl);
     assert.deepEqual(result, { width: 0, height: 0 }, "empty string has 0 width and height");
   });
 
-  test("works on whitespaces", function(assert) {
+  test("measurer - works on whitespaces", function(assert) {
     let result = measure(" \t  ", this.parentEl);
     assert.equal(result.width, 0, "whitespace has width 0");
     assert.equal(result.height, 0, "whitespace has height 0");
   });
 
-  test("works on whitespaces in middle", function(assert) {
+  test("measurer - works on whitespaces in middle", function(assert) {
     let baseResult = measure("a a", this.parentEl);
     let result = measure("a   a", this.parentEl);
     assert.equal(result.width, baseResult.width, "multiple whitespaces occupy same space");
     assert.equal(result.height, baseResult.height, "height is the same");
   });
 
-  test("works on multiple lines", function(assert) {
+  test("measurer - works on multiple lines", function(assert) {
     let baseResult = measure("a", this.parentEl);
     let result = measure("a\na", this.parentEl);
     assert.equal(result.width, baseResult.width, "width has not changed");
     assert.equal(result.height, baseResult.height * 2, "height has changed");
   });
 
-  // test('it measures text', async function(assert) {
-
-
-  //   let result1 = measure('c', parentEl);
-  //   assert.equal(result1, 4.4375, 'text is measured correctly');
-
-  //   let result2 = measure('cc', parentEl);
-  //   assert.equal(result2, 8.875, 'text is measured correctly');
-
-  //   let result3 = measure(' ', parentEl);
-  //   assert.equal(result3, 4.4375, 'text is measured correctly');
-  // });
+  // test("breakup - it 
 
   // test('it formats text', async function(assert) {
 
