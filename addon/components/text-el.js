@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import layout from '../templates/components/text-el';
 import { get, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
-import Wrapper from '../lib/wrapper';
+import Wrapper from '../utils/wrapper';
 import { scheduleOnce } from '@ember/runloop';
 
 export default Component.extend({
