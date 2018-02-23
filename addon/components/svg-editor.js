@@ -4,9 +4,9 @@ import { set, get, setProperties, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import layout from '../templates/components/svg-editor';
 import { scheduleOnce } from '@ember/runloop';
-import SvgLoader from '../lib/svg-loader';
-import TextElFactory from '../lib/text-el-factory';
-import SelectBoxFactory from '../lib/select-box-factory';
+import SvgLoader from '../utils/svg-loader';
+import TextElFactory from '../utils/text-el-factory';
+import SelectBoxFactory from '../utils/select-box-factory';
 
 function createSelectedTextComputed(keys) {
   let cacheKeys = keys.map((key) => `${key}.wrapper.text`);
