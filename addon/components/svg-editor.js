@@ -11,7 +11,6 @@ import SelectBoxFactory from '../utils/select-box-factory';
 function createSelectedTextComputed(keys) {
   let cacheKeys = keys.map((key) => `${key}.wrapper.text`);
   return computed('currentSelection', ...cacheKeys, function() {
-    console.log('computed');
     return get(this, `${get(this, 'currentSelection')}.wrapper.text`);
   });
 }
@@ -61,8 +60,15 @@ export default Component.extend({
     updateText(e) {
       let { target: { value } } = e;
       let textComponent = get(this, get(this, 'currentSelection'));
+      let editElement = document.getElementById(get(this, 'elementIdToFocus'));
+      let cursorPosition = editElement.selectionStart
       get(textComponent, 'wrapper').setText(value);
-      scheduleOnce('afterRender', this, () => get(this, 'selectBoxComponent').select(textComponent));
+
+      scheduleOnce('afterRender', this, () => {
+        get(this, 'selectBoxComponent').select(textComponent);
+        editElement.selectionStart = cursorPosition;
+        editElement.selectionEnd = cursorPosition;
+      });
     },
 
     select(id) {
