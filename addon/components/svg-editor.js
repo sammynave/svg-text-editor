@@ -8,6 +8,14 @@ import SvgLoader from '../lib/svg-loader';
 import TextElFactory from '../lib/text-el-factory';
 import SelectBoxFactory from '../lib/select-box-factory';
 
+function createSelectedTextComputed(keys) {
+  let cacheKeys = keys.map((key) => `${key}.wrapper.text`);
+  return computed('currentSelection', ...cacheKeys, function() {
+    console.log('computed');
+    return get(this, `${get(this, 'currentSelection')}.wrapper.text`);
+  });
+}
+
 export default Component.extend({
   tagName: '',
   layout,
@@ -31,14 +39,14 @@ export default Component.extend({
       select: this.actions.select.bind(this),
       maxWidth: 100
     });
-    setProperties(this, textElFactory.make());
+
+    let textElComponents = textElFactory.make();
+    setProperties(this, textElComponents);
+
+    set(this, 'selectedText', createSelectedTextComputed(Object.keys(textElComponents)));
 
     set(this, 'svgContainerEl', svgContainerEl);
   }).on('init'),
-
-  selectedText: computed(function() {
-    return get(this, `${get(this, 'currentSelection')}.wrapper.text`);
-  }).volatile(),
 
   actions: {
     unselect(e) {
