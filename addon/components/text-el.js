@@ -8,14 +8,14 @@ import { scheduleOnce } from '@ember/runloop';
 export default Component.extend({
   layout,
   tagName: 'text',
-  text: alias('wrapper.asMarkup'),
+  text: alias('wrapper.markup'),
 
   didInsertElement() {
     this._super(...arguments);
     scheduleOnce('afterRender', () => {
       let wrapper = Wrapper.create({
         parentEl: get(this, 'element'),
-        text: get(this, 'initialText'),
+        initialText: get(this, 'initialText'),
         maxWidth: get(this, 'maxWidth')
       });
 

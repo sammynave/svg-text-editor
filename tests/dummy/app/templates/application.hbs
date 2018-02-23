@@ -2,6 +2,7 @@
   {{se.svg}}
   {{#if se.currentSelection}}
     <textarea cols=40 rows=10 id="textarea" autofocus value={{se.text}} oninput={{action se.updateText}}></textarea>
+    {{se.text}}
   {{/if}}
 {{/svg-editor}}
 

@@ -119,9 +119,7 @@ export function breakUp(line, parentEl, maxWidth) {
   }
 }
 
-export function formatText(text, maxWidth, parentEl) {
-  let lines = text.split('\n');
-
+export function formatText(lines, maxWidth, parentEl) {
   return lines.reduce((acc, line) => {
     let formatted = breakUp(line, parentEl, maxWidth);
     if (Array.isArray(formatted)) {

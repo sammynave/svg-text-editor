@@ -2,23 +2,29 @@ import EmberObject, { computed, get, set } from '@ember/object';
 import { formatText, tspanify } from './wrapper/utils';
 
 const Wrapper = EmberObject.extend({
-  text: null,
+  initialText: null,
+  lines: null,
 
-  setText(text) {
-    let formattedLines = formatText(text, get(this, 'maxWidth'), get(this, 'parentEl'));
-    console.log(formattedLines);
-    set(this, 'text', formattedLines.join('\n'));
+  init() {
+    this._super(...arguments);
+    this.setText(get(this, 'initialText'));
   },
 
-  asLines: computed('text', function() {
-    return get(this, 'text').split('\n');
+  text: computed('lines', function() {
+    return get(this, 'lines').join('\n');
   }),
 
-  asMarkup: computed('asLines', function() {
-    return get(this, 'asLines').map((line) => {
+  markup: computed('lines', function() {
+    return get(this, 'lines').map((line) => {
       return tspanify(line);
     }).join('');
   }),
+
+  setText(text) {
+    let lines = text.split('\n');
+    let formattedLines = formatText(lines, get(this, 'maxWidth'), get(this, 'parentEl'));
+    set(this, 'lines', formattedLines);
+  }
 });
 
 export default Wrapper;
